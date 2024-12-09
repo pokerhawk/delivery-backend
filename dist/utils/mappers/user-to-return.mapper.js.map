@@ -1,0 +1,1 @@
+{"version":3,"file":"user-to-return.mapper.js","sourceRoot":"","sources":["../../../src/utils/mappers/user-to-return.mapper.ts"],"names":[],"mappings":";;;AAEO,MAAM,kBAAkB,GAAG,CAAC,IAAS,EAAgB,EAAE;IAC1D,OAAO;QACH,EAAE,EAAE,IAAI,CAAC,EAAE;QACX,IAAI,EAAE,IAAI,CAAC,IAAI;QACf,KAAK,EAAE,IAAI,CAAC,KAAK;KACpB,CAAA;AACL,CAAC,CAAA;AANY,QAAA,kBAAkB,sBAM9B"}

@@ -4,6 +4,8 @@ import * as bcrypt from 'bcrypt'
 import { CreateUserDto } from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import { userToReturnMapper } from 'src/utils/mappers/user-to-return.mapper';
+import { TwoFactorAuthService } from './two-factor-auth.service';
+import { User } from 'prisma/generated/client';
 
 export interface ILoginBody {
     email: string;
@@ -20,7 +22,8 @@ type UserJwtProps = {
 export class AuthService {
     constructor(
         private readonly prisma: ClientService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly twoFactorService: TwoFactorAuthService
     ){}
 
     validateApiKey(apiKey: string){
@@ -35,24 +38,7 @@ export class AuthService {
         }
     }
 
-    async login(body: ILoginBody){
-        const user = await this.validateUser(body.email, body.password);
-        const userJwt: UserJwtProps = {
-            sub: user.id,
-            email: user.email,
-            name: user.name,
-        };
-
-        return {
-            id: user.id,
-            type: user.accountAccess,
-            access_token: this.jwtService.sign(userJwt),
-            refresh_token: this.jwtService.sign(userJwt, { expiresIn: '60d' }),
-            message: `Bem vindo ${user.name}`
-        }
-    }
-
-    async registerUser(userPayload: CreateUserDto){
+    async register(userPayload: CreateUserDto){
         const user = {
             ...userPayload,
             password: bcrypt.hashSync(userPayload.password, 10)
@@ -73,5 +59,34 @@ export class AuthService {
             }
         })
         return 'Cadastrado com sucesso!'
+    }
+
+    async login(body: ILoginBody){
+        const user = await this.validateUser(body.email, body.password);
+        const userJwt: UserJwtProps = {
+            sub: user.id,
+            email: user.email,
+            name: user.name,
+        };
+
+        const qrcode = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
+
+        return {
+            id: user.id,
+            type: user.accountAccess,
+            access_token: this.jwtService.sign(userJwt),
+            refresh_token: this.jwtService.sign(userJwt, { expiresIn: '60d' }),
+            qrcode
+        }
+    }
+
+    async verify2FA(body: any){
+        const user = await this.prisma.user.findFirst({where:{id: body.userId}})
+        const verifyCode = await this.twoFactorService.verifyTwoFaCode(body.code, user)
+
+        return {
+            token: verifyCode,
+            message: `Bem vindo ${user.name}`
+        }
     }
 }

@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
+import { TwoFactorAuthService } from './two-factor-auth.service';
 import { AuthController } from './auth.controller';
 import { LoginValidationMiddleware } from 'src/middlewares/login-validation.middleware';
 import { AllModule } from '../all.module';
@@ -21,8 +22,8 @@ import { ApiKeyStrategy } from './strategies/apikey.strategy';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy, ApiKeyStrategy],
-  exports: [AuthService]
+  providers: [AuthService, TwoFactorAuthService, JwtStrategy, LocalStrategy, ApiKeyStrategy],
+  exports: [AuthService, TwoFactorAuthService]
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
