@@ -10,7 +10,9 @@ export declare class AuthController {
         access_token: string;
         refresh_token: string;
         qrcode: {
-            otpAuthUrl: string;
+            secret: string;
+            uri: string;
+            qr: string;
         };
     }>;
     verify2FA(body: any): Promise<{

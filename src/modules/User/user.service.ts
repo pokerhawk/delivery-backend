@@ -9,7 +9,14 @@ export class UserService {
     ){}
 
     async getUserById(id:string){
-        const user = await this.prisma.user.findUnique({where: {id: id}});        
+        const user = await this.prisma.user.findUnique({where: {id: id}});
+        await this.prisma.user.update({
+            where: {id: user.id},
+            data: {
+                mfaEnabled: false,
+                mfaSecret: ''
+            }
+        })
         return {...user};
     }
 }

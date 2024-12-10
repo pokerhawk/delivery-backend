@@ -13,9 +13,9 @@ export declare class AuthService {
     constructor(prisma: ClientService, jwtService: JwtService, twoFactorService: TwoFactorAuthService);
     validateApiKey(apiKey: string): string;
     validateUser(email: string, password: string): Promise<Partial<{
+        name: string;
         id: string;
         accountAccess: import("prisma/generated/client").$Enums.AccountAccess;
-        name: string;
         email: string;
         password: string;
         mfaEnabled: boolean;
@@ -33,7 +33,9 @@ export declare class AuthService {
         access_token: string;
         refresh_token: string;
         qrcode: {
-            otpAuthUrl: string;
+            secret: string;
+            uri: string;
+            qr: string;
         };
     }>;
     verify2FA(body: any): Promise<{

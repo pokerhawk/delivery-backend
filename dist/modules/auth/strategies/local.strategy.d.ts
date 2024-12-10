@@ -5,9 +5,9 @@ export declare class LocalStrategy extends LocalStrategy_base {
     private authService;
     constructor(authService: AuthService);
     validateUser(email: string, password: string): Promise<Partial<{
+        name: string;
         id: string;
         accountAccess: import("prisma/generated/client").$Enums.AccountAccess;
-        name: string;
         email: string;
         password: string;
         mfaEnabled: boolean;
