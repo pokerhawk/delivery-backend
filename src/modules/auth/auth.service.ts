@@ -69,14 +69,14 @@ export class AuthService {
             name: user.name,
         };
 
-        const qrcode = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
+        const { uri } = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
 
         return {
             id: user.id,
             type: user.accountAccess,
             access_token: this.jwtService.sign(userJwt),
             refresh_token: this.jwtService.sign(userJwt, { expiresIn: '60d' }),
-            qrcode
+            qrcode: uri
         }
     }
 
