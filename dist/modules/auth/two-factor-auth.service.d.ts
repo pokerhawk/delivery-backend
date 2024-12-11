@@ -3,10 +3,6 @@ import { ClientService } from 'src/client/client.service';
 export declare class TwoFactorAuthService {
     private readonly prisma;
     constructor(prisma: ClientService);
-    generateTwoFactorAuthSecret(loggedUserEmail: string): Promise<{
-        secret: string;
-        uri: string;
-        qr: string;
-    }>;
+    generateTwoFactorAuthSecret(loggedUserEmail: string): Promise<string>;
     verifyTwoFaCode(code: string, user: User): Promise<boolean>;
 }

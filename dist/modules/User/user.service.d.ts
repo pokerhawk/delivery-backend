@@ -2,7 +2,7 @@ import { ClientService } from 'src/client/client.service';
 export declare class UserService {
     private readonly prisma;
     constructor(prisma: ClientService);
-    getUserById(id: string): Promise<{
+    getUserById(userId: string): Promise<{
         id: string;
         accountAccess: import("prisma/generated/client").$Enums.AccountAccess;
         name: string;

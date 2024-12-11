@@ -26,6 +26,9 @@ let AuthController = class AuthController {
     login(body) {
         return this.authService.login(body);
     }
+    generate2FA(userId) {
+        return this.authService.generate2FA(userId);
+    }
     verify2FA(body) {
         return this.authService.verify2FA(body);
     }
@@ -46,7 +49,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.Post)('verifyAuth'),
+    (0, common_1.Get)('generateQrCode'),
+    __param(0, (0, common_1.Param)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "generate2FA", null);
+__decorate([
+    (0, common_1.Post)('verify2Fa'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'prisma/generated/client';
-import { generateSecret, generateToken, verifyToken } from 'node-2fa';
+import { authenticator } from 'otplib';
 import { ClientService } from 'src/client/client.service';
 
 @Injectable()
@@ -8,7 +8,9 @@ export class TwoFactorAuthService {
   constructor(
     private readonly prisma: ClientService
   ) {
-
+    authenticator.options = {
+      window: 1,
+    };
   }
   
   public async generateTwoFactorAuthSecret(loggedUserEmail: string) {
@@ -19,15 +21,13 @@ export class TwoFactorAuthService {
     if (user?.mfaEnabled)
     return;
 
-    const otpAuth = generateSecret({
-      name: "Projeto Delivery",
-      account: user.email
-    });
+    const secret = authenticator.generateSecret();
+    const otpAuth = authenticator.keyuri(user.email, "Projeto Delivery", secret);
 
     await this.prisma.user.update({
       where: {id: user.id},
       data: {
-        mfaSecret: otpAuth.secret,
+        mfaSecret: secret,
         mfaEnabled: true
       }
     });
@@ -36,10 +36,9 @@ export class TwoFactorAuthService {
   }
 
   async verifyTwoFaCode(code: string, user: User) {
-    const isValid = verifyToken(user.mfaSecret, code, 4);
-    if(isValid === null){
-      return false
-    }
-    return true
+    return authenticator.verify({
+      token: code,
+      secret: user.mfaSecret,
+    });
   }
 }

@@ -8,15 +8,8 @@ export class UserService {
         private readonly prisma: ClientService,
     ){}
 
-    async getUserById(id:string){
-        const user = await this.prisma.user.findUnique({where: {id: id}});
-        await this.prisma.user.update({
-            where: {id: user.id},
-            data: {
-                mfaEnabled: false,
-                mfaSecret: ''
-            }
-        })
+    async getUserById(userId:string){
+        const user = await this.prisma.user.findUnique({where: {id: userId}});
         return {...user};
     }
 }

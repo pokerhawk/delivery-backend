@@ -11,11 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TwoFactorAuthService = void 0;
 const common_1 = require("@nestjs/common");
-const node_2fa_1 = require("node-2fa");
+const otplib_1 = require("otplib");
 const client_service_1 = require("../../client/client.service");
 let TwoFactorAuthService = class TwoFactorAuthService {
     constructor(prisma) {
         this.prisma = prisma;
+        otplib_1.authenticator.options = {
+            window: 1,
+        };
     }
     async generateTwoFactorAuthSecret(loggedUserEmail) {
         const user = await this.prisma.user.findFirst({
@@ -23,25 +26,22 @@ let TwoFactorAuthService = class TwoFactorAuthService {
         });
         if (user?.mfaEnabled)
             return;
-        const otpAuth = (0, node_2fa_1.generateSecret)({
-            name: "Projeto Delivery",
-            account: user.email
-        });
+        const secret = otplib_1.authenticator.generateSecret();
+        const otpAuth = otplib_1.authenticator.keyuri(user.email, "Projeto Delivery", secret);
         await this.prisma.user.update({
             where: { id: user.id },
             data: {
-                mfaSecret: otpAuth.secret,
+                mfaSecret: secret,
                 mfaEnabled: true
             }
         });
         return otpAuth;
     }
     async verifyTwoFaCode(code, user) {
-        const isValid = (0, node_2fa_1.verifyToken)(user.mfaSecret, code, 4);
-        if (isValid === null) {
-            return false;
-        }
-        return true;
+        return otplib_1.authenticator.verify({
+            token: code,
+            secret: user.mfaSecret,
+        });
     }
 };
 exports.TwoFactorAuthService = TwoFactorAuthService;

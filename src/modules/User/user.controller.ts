@@ -12,9 +12,9 @@ export class UserController {
     
     @Get('getUserById')
     getUserById(
-        @Query('id') id: string
+        @Query('userId') userId: string
     ){
-        return this.userService.getUserById(id);
+        return this.userService.getUserById(userId);
     }
 
     // @Get('getAll')

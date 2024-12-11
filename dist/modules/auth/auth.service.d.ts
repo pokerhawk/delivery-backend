@@ -6,6 +6,10 @@ export interface ILoginBody {
     email: string;
     password: string;
 }
+export interface Iverify2Fa {
+    userId: string;
+    code: string;
+}
 export declare class AuthService {
     private readonly prisma;
     private readonly jwtService;
@@ -28,18 +32,17 @@ export declare class AuthService {
     }>>;
     register(userPayload: CreateUserDto): Promise<string>;
     login(body: ILoginBody): Promise<{
-        id: string;
+        userId: string;
         type: import("prisma/generated/client").$Enums.AccountAccess;
         access_token: string;
         refresh_token: string;
-        qrcode: {
-            secret: string;
-            uri: string;
-            qr: string;
-        };
+        mfaEnabled: boolean;
     }>;
-    verify2FA(body: any): Promise<{
-        token: boolean;
+    generate2FA(userId: string): Promise<{
+        qrcode: string;
+    }>;
+    verify2FA(body: Iverify2Fa): Promise<{
+        isValid: boolean;
         message: string;
     }>;
 }

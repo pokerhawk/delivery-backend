@@ -12,6 +12,11 @@ export interface ILoginBody {
     password: string;
 }
 
+export interface Iverify2Fa {
+    userId: string;
+    code: string;
+}
+
 type UserJwtProps = {
     sub: string;
     email: string;
@@ -62,30 +67,39 @@ export class AuthService {
     }
 
     async login(body: ILoginBody){
-        const user = await this.validateUser(body.email, body.password);
+        const user = await this.prisma.user.findFirst({where:{email: body.email}});
+        const validateUser = await this.validateUser(body.email, body.password);
         const userJwt: UserJwtProps = {
-            sub: user.id,
-            email: user.email,
-            name: user.name,
+            sub: validateUser.id,
+            email: validateUser.email,
+            name: validateUser.name,
         };
 
-        const { uri } = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
-
         return {
-            id: user.id,
+            userId: user.id,
             type: user.accountAccess,
             access_token: this.jwtService.sign(userJwt),
             refresh_token: this.jwtService.sign(userJwt, { expiresIn: '60d' }),
-            qrcode: uri
+            mfaEnabled: user.mfaEnabled
         }
     }
 
-    async verify2FA(body: any){
+    async generate2FA(userId: string){
+        const user = await this.prisma.user.findFirst({where:{id: userId}});
+        if(user.mfaEnabled)
+            return;
+
+        const qrcode = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
+
+        return {qrcode};
+    }
+
+    async verify2FA(body: Iverify2Fa){
         const user = await this.prisma.user.findFirst({where:{id: body.userId}})
         const verifyCode = await this.twoFactorService.verifyTwoFaCode(body.code, user)
 
         return {
-            token: verifyCode,
+            isValid: verifyCode,
             message: `Bem vindo ${user.name}`
         }
     }

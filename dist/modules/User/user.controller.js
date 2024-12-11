@@ -20,14 +20,14 @@ let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
     }
-    getUserById(id) {
-        return this.userService.getUserById(id);
+    getUserById(userId) {
+        return this.userService.getUserById(userId);
     }
 };
 exports.UserController = UserController;
 __decorate([
     (0, common_1.Get)('getUserById'),
-    __param(0, (0, common_1.Query)('id')),
+    __param(0, (0, common_1.Query)('userId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)

@@ -52,26 +52,33 @@ let AuthService = class AuthService {
         return 'Cadastrado com sucesso!';
     }
     async login(body) {
-        const user = await this.validateUser(body.email, body.password);
+        const user = await this.prisma.user.findFirst({ where: { email: body.email } });
+        const validateUser = await this.validateUser(body.email, body.password);
         const userJwt = {
-            sub: user.id,
-            email: user.email,
-            name: user.name,
+            sub: validateUser.id,
+            email: validateUser.email,
+            name: validateUser.name,
         };
-        const qrcode = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
         return {
-            id: user.id,
+            userId: user.id,
             type: user.accountAccess,
             access_token: this.jwtService.sign(userJwt),
             refresh_token: this.jwtService.sign(userJwt, { expiresIn: '60d' }),
-            qrcode
+            mfaEnabled: user.mfaEnabled
         };
+    }
+    async generate2FA(userId) {
+        const user = await this.prisma.user.findFirst({ where: { id: userId } });
+        if (user.mfaEnabled)
+            return;
+        const qrcode = await this.twoFactorService.generateTwoFactorAuthSecret(user.email);
+        return { qrcode };
     }
     async verify2FA(body) {
         const user = await this.prisma.user.findFirst({ where: { id: body.userId } });
         const verifyCode = await this.twoFactorService.verifyTwoFaCode(body.code, user);
         return {
-            token: verifyCode,
+            isValid: verifyCode,
             message: `Bem vindo ${user.name}`
         };
     }

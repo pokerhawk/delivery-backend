@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { AuthService, ILoginBody } from './auth.service';
+import { AuthService, ILoginBody, Iverify2Fa } from './auth.service';
 import { CreateUserDto } from './dto/register.dto';
-import { ApiKeyAuthGuard } from './guards/apikey-auth.guard';
+// import { ApiKeyAuthGuard } from './guards/apikey-auth.guard';
 
 // @UseGuards(ApiKeyAuthGuard)
 @Controller('auth')
@@ -20,8 +20,13 @@ export class AuthController {
         return this.authService.login(body);
     }
 
-    @Post('verifyAuth')
-    verify2FA(@Body() body: any){
+    @Get('generateQrCode')
+    generate2FA(@Param() userId: string){
+        return this.authService.generate2FA(userId);
+    }
+
+    @Post('verify2Fa')
+    verify2FA(@Body() body: Iverify2Fa){
         return this.authService.verify2FA(body);
     }
 }

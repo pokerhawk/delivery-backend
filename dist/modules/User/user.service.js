@@ -16,15 +16,8 @@ let UserService = class UserService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getUserById(id) {
-        const user = await this.prisma.user.findUnique({ where: { id: id } });
-        await this.prisma.user.update({
-            where: { id: user.id },
-            data: {
-                mfaEnabled: false,
-                mfaSecret: ''
-            }
-        });
+    async getUserById(userId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
         return { ...user };
     }
 };
